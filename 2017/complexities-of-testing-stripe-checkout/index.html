@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+  <head>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Use title if it's in the page YAML frontmatter -->
+  <title>Elegant Brew: The Complexities of Testing Stripe Checkout</title>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+
+  <link href="/stylesheets/highlighting.css" rel="stylesheet" />
+  <link href="/stylesheets/site.css" rel="stylesheet" />
+  <script src="/javascripts/site.js"></script>
+</head>
+
+  <body class="x2017 x2017_complexities-of-testing-stripe-checkout x2017_complexities-of-testing-stripe-checkout_index inner">
+    <nav class="navbar navbar-toggleable-md navbar-light hidden-lg-up">
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" href="#">&nbsp;</a>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/about">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/blog">Blog</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/contact">Contact</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+    <div class="container-fluid site-header">
+
+      <div class="row">
+	<div class="col-sm-12">
+	  <h2 class="small"><a href="/">Elegant Brew</a></h2>
+	  <h1>The Complexities of Testing Stripe Checkout</h1>
+	</div>
+      </div>
+    </div>
+
+    <div id="main-content">
+      <div class="container">
+	<div class="row">
+	  <div class="col-sm-12">
+	    <p>TL;DR:<br>
+Nothing is simple.<br>
+Error messages are not always relevant.<br>
+Dive deep to find the real error.  </p>
+
+<p></p>
+
+<p>I&rsquo;m a Ruby programmer at Kettul. My business partner Tim lives in Ireland. He&rsquo;s a designer and front-end developer. It would be valuable for him and for our business if he could handle some of the programming tasks. So, we started pair programming. After trying some of the cloud-based IDEs, I eventually setup a Digital Ocean Ubuntu server with zsh, rvm, emacs, and all of my favorite plugins. We use tmate to share a terminal session. This allows us to see and edit the same files as if we were working side-by-side. I&rsquo;d like the freedom to move to an iPad or Chromebook without losing any productivity. So, the move to Digital Ocean had multiple benefits.</p>
+
+<p>Recently, we were pairing on a pet project that involves payment processing. I opted to use Stripe as it easily integrates into Rails and handles much of the ugliness associated with online checkout including form creation, validation, PCI compliance, etc. The simplest Stripe integration is their Checkout JavaScript library. By including a single JavaScript file in your checkout form, you get a button that triggers a Stripe modal, collects credit card info, generates and populates a hidden token field, and submits your form.</p>
+
+<p>We&rsquo;re TDDing our features with RSpec and Capybara, but, up until now, none of our specs relied on JavaScript. When working locally on js-tagged specs, I configure Capybara to use Selenium which runs the specs graphically in a Chrome browser. On a remote box, we don&rsquo;t have a windows environment. So, we need a headless JavaScript driver. We opted for poltergeist, installed the gem, installed phantomjs on our dev machine, and configured Capyabara to use poltergeist as its javascript driver.</p>
+
+<p>Now, we can have Capybara click Stripe&rsquo;s &ldquo;pay&rdquo; button, complete the form, and test that the code in the target controller action gets executed. I quickly learned how hard it is to debug in a headless browser, and the process of hooking up what was supposed to be extremely simple made me realize how complex it really is.</p>
+
+<p>We wrote a spec that logged in a user and visited a page for a Tip record created by that user and not flagged as &ldquo;paid&rdquo;. The spec instructed Capybara to click Stripe&rsquo;s payment button, fill in the modal payment form, and click the submit button before testing the outcome.</p>
+
+<p>For this test to pass, the following had to be true:</p>
+
+<ol>
+<li>The user was logged in.</li>
+<li>The user had permission to access the page that contained the form.</li>
+<li>The spec visited the correct page.</li>
+<li>The Stripe javascript tag was included correctly.</li>
+<li>Phantomjs loaded Stripe&rsquo;s javascript.</li>
+<li>The Stripe modal form displayed.</li>
+<li>The spec correctly filled and submitted the form.</li>
+<li>Sripe&rsquo;s javascript was able to create and populate the hidden token field.</li>
+<li>Stripe&rsquo;s javascript was able to submit the rails form.</li>
+<li>The rails form had the correct target URL and method (a post request to /tips/:id/payment).</li>
+<li>A route was properly configured to map to the target controller action TipsController#payment.</li>
+<li>The user was authorized to pay for the tip record.</li>
+<li>The code in the controller action does what we want it to do.</li>
+</ol>
+
+<p>Keep in mind, we&rsquo;re not even at the step of charging a card via the Stripe API. We&rsquo;re just testing that the Stripe form submits and that the code in the controller action executes.</p>
+
+<p>When we ran the spec, it failed. It looked like it was able to find and complete the Stripe form, but it wasn&rsquo;t getting to the controller action. In fact, it wasn&rsquo;t submitting the form. I learned this by sticking a byebug call in a before_action in ApplicationController and inspecting the params of each request that took place in the spec.</p>
+
+<p>We&rsquo;re in a headless browser. So, I couldn&rsquo;t just add sleep calls in and watch everything that was happening. I considered pulling the code to my local machine and running the specs there with a regular javascript driver, but that would be a shortcut that would set me back from regularly using a remote development machine.</p>
+
+<p>At this point, Tim and I broke from out pairing session. We only started pairing a few days earlier. I had enough of a time convincing him of the merits of TDD. Now, I was about to subject him to potentially hours of yak shaving and debugging. I didn&rsquo;t want to turn off his newfound interest in learning Rails.</p>
+
+<p>Next, I looked at the output of the specs. Without Poltergeist configured to spew all of it&rsquo;s debug messages to the terminal, I was left with a single, duplicated error that appeared to come from phantomjs. Stripe&rsquo;s https iframe was blocked from accessing the app&rsquo;s non-https page. I assumed this was preventing the Stripe token from being set and the form from being submitted. This made sense as - most of the time - the error messages in RSpec&rsquo;s output actually point you to the problem.</p>
+
+<p>I started looking into Poltergeist/PhantomJS configurations that would solve what appeared to be an SSL error. I turned off PhantomJS&rsquo;s web security, set it to allow all protocols, etc. Same error.</p>
+
+<p>I looked up the error and found similar (but not exactly the same) issues. Usually, https =&gt; null or http =&gt; &ldquo;&rdquo; but not https =&gt; http.  I looked up testing SSL pages locally and ended up configuring Capybara to fireup a server with SSL. I generated certificates and keys on the server, etc&hellip; This resulted in the same error. The protocols matched now, but the domains and ports were different. I reconsidered that the error message was even relevant. Of course it&rsquo;s possible for remote iframes to work - Stripe works. I&rsquo;ve used it on other sites. The problem must be with whatever javascript driver I&rsquo;m using if it&rsquo;s related to this error message.</p>
+
+<p>I ran the specs again and jumped into byebug immediately after the form submission code. I found that Poltergeist has a network_traffic method that displays a running list of all requests that occur in the browser. The last request was a response from Stripe that the checkout form was invalid. Why? Because my public key wasn&rsquo;t set. I looked at page.body and sure enough it was blank! But, I was sending it! We use dotenv in our test and dev environments. It&rsquo;s in the Gemfile. We have a .env file with our stripe keys. We have a stripe initializer that moves the env vars to Rails.config.stripe. The code doesn&rsquo;t raise any errors.</p>
+
+<p>I added a byebug call in a controller action and checked the rails config. Sure enough, it was blank. I checked the ENV variables. They were nil. They weren&rsquo;t being set. Was dotenv not doing it&rsquo;s job? It turns out we were using the dotenv gem instead of the dotenv-rails gem. I swapped out the gems. Ran the spec. It passed!</p>
+
+<p>I commented out the SSL server, still passed.</p>
+
+<p>I deleted the key and crt files, still passed.</p>
+
+<p>Now, we can move on to making sure we&rsquo;re getting a Stripe token and actually hooking up the payment.</p>
+
+<p>I felt dumb after spending so much time on this issue. However, I learned so much about dependencies, setting up an SSL server, testing, and just how much has to go right for what appears to be simple code to actually work. Some people knock rails for being too magical, but I actually appreciate it. Most of the time, everything just works. When it doesn&rsquo;t, you get a free lesson in how complex web development actually is.</p>
+
+	  </div>
+	</div>
+      </div>
+    </div>
+
+    <footer id="footer">
+  <a href="/">home</a> |
+  <a href="/about">about</a> |
+  <a href="/blog">blog</a> |
+  <a href="/contact">contact</a> |
+  <a class="mailto-link" data-email="psparrow25-at-gmail-dot-com" data-label="email"></a>
+  <br>
+  copyright &copy; 2017 elegantbrew.com.
+</footer>
+
+  </body>
+</html>
