@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Ubuntu+Mono|Dosis:600|Roboto+Slab:300");
+@import url("https://fonts.googleapis.com/css?family=Ubuntu+Mono|Nunito|Open+Sans|Roboto+Slab:300");
 /*!
  * Bootstrap v4.0.0-alpha.6 (https://getbootstrap.com)
  * Copyright 2011-2017 The Bootstrap Authors
@@ -6650,7 +6650,7 @@ body {
 body.inner {
   background: #FFF; }
 
-a {
+#main-content a {
   font-weight: bold; }
 
 a:hover {
@@ -6664,8 +6664,7 @@ a:hover {
   .site-header * {
     color: #52658F; }
   .site-header h2 {
-    font-size: 1.25rem;
-    font-weight: bold; }
+    font-size: 1.5rem; }
   .site-header a:hover {
     color: #333A56; }
 
@@ -6687,7 +6686,7 @@ article.article-summary {
   margin-top: 30px;
   text-align: center;
   font-size: 0.9em;
-  font-family: "Dosis", sans-serif; }
+  font-family: "Nunito", sans-serif; }
   #footer a {
     padding-left: 4px;
     padding-right: 4px; }
@@ -6700,16 +6699,17 @@ h1 a:hover {
   padding-top: 30px; }
   .block a {
     color: #FFF;
-    border-radius: 3px; }
+    border-radius: 4px; }
   .block h2 {
-    margin-bottom: 15px; }
+    margin-bottom: 15px;
+    font-size: 2rem; }
 
 .block-1 {
   background-color: #52658F;
   color: #FFF; }
   .block-1 a {
     text-decoration: none;
-    padding: 3px;
+    padding: 3px 4px 3px 4px;
     color: #FFF;
     background-color: #3f4e6f; }
   .block-1 a:hover {
@@ -6720,7 +6720,7 @@ h1 a:hover {
   color: #FFF; }
   .block-2 a {
     text-decoration: none;
-    padding: 3px;
+    padding: 3px 4px 3px 4px;
     color: #FFF;
     background-color: #202436; }
   .block-2 a:hover {
@@ -6731,7 +6731,7 @@ h1 a:hover {
   color: #333A56; }
   .block-3 a {
     text-decoration: none;
-    padding: 3px;
+    padding: 3px 4px 3px 4px;
     color: #FFF;
     background-color: #52658F; }
   .block-3 a:hover {
@@ -6742,7 +6742,7 @@ h1 a:hover {
   color: #FFF; }
   .block-4 a {
     text-decoration: none;
-    padding: 3px;
+    padding: 3px 4px 3px 4px;
     color: #FFF;
     background-color: #33082a; }
   .block-4 a:hover {
@@ -6753,7 +6753,7 @@ h1 a:hover {
   color: #333A56; }
   .block-white a {
     text-decoration: none;
-    padding: 3px;
+    padding: 3px 4px 3px 4px;
     color: #FFF;
     background-color: #52658F; }
   .block-white a:hover {
@@ -6780,11 +6780,13 @@ h1 a:hover {
   color: #333A56; }
 
 .inner #main-content a {
+  display: inline-block;
   text-decoration: none;
-  padding: 3px;
-  color: #333A56;
+  padding: 2px 4px 2px 4px;
+  color: #FFF;
   border-radius: 3px;
-  font-weight: bold; }
+  font-weight: bold;
+  background-color: #52658F; }
 .inner #main-content a:hover {
   background-color: #333A56;
   color: #FFF; }
@@ -6795,7 +6797,7 @@ h1 a:hover {
   color: #222; }
 
 h1, h2, h3 {
-  font-family: "Dosis", sans-serif; }
+  font-family: "Nunito", sans-serif; }
 
 .rounded-top {
   border-top-left-radius: 15px;
