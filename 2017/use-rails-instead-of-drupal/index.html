@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+  <head>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Use title if it's in the page YAML frontmatter -->
+  <title>Elegant Brew: Use Rails instead of Drupal</title>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+
+  <link href="/stylesheets/highlighting.css" rel="stylesheet" />
+  <link href="/stylesheets/site.css" rel="stylesheet" />
+  <script src="/javascripts/site.js"></script>
+</head>
+
+  <body class="x2017 x2017_use-rails-instead-of-drupal x2017_use-rails-instead-of-drupal_index inner">
+    <div class="container-fluid site-header">
+      <div class="row">
+	<div class="col-sm-4 col-md-5 col-lg-3 bg-red text-right">
+	  <h1><a href="/">Elegant Brew</a></h1>
+	</div>
+	<div class="col-sm-8 col-md-7 col-lg-9 bg-blue text-left">
+	  <h1><a href="/2017/use-rails-instead-of-drupal/">Use Rails instead of Drupal</a></h1>
+	</div>
+      </div>
+    </div>
+
+    <div id="main-content">
+      <div class="container">
+	<div class="row">
+	  <div class="col-sm-12">
+	    <p>&ldquo;What&rsquo;s this idiot talking about? Drupal is a content management system; Rails is a framework. Drupal is PHP; Rails is Ruby. The Whitehouse website is built in Drupal!&rdquo;</p>
+
+<p></p>
+
+<p>I hear you. I get it. I&rsquo;ve built university websites in Drupal. It&rsquo;s powerful. It provides a ton of features with the click of a button. It gets you much of what you need without having to touch a line of code.</p>
+
+<p>The problems arise when it comes time to build something that Drupal (or one of its community modules) does not provide. That&rsquo;s when Drupal can get in the way. Any app or website that does anything interesting is going to change over time. There&rsquo;s a point where the platform gets in the way and the costs of using it begin to outweigh the benefits. Sadly, this occurs when it&rsquo;s too late to scrap everything and switch platforms. I have never felt like Ruby on Rails was in my way.</p>
+
+<p>In this post, I show how some of the features that make Drupal a great sell can be implemented in Rails.</p>
+
+<h2>User Registration and Authentication</h2>
+
+<p>Drupal provides this right out of the box. Visitors can make an account and login and logout. Rails doesn&rsquo;t provide this. Luckily, there are multiple libraries - called &ldquo;gems&rdquo; in Ruby - that can be used to add this functionality to your app. Devise is one of them. Here&rsquo;s how to use it.</p>
+
+<p>Add the devise gem to your Gemfile.</p>
+<pre class="highlight ruby"><code><span class="n">gem</span> <span class="s1">'devise'</span>
+</code></pre>
+<p>Install it, and be sure to follow the few additional instructions that display after the installation.</p>
+<pre class="highlight plaintext"><code>$ bundle install
+$ rails g devise:install
+</code></pre>
+<p>Generate a User model.</p>
+<pre class="highlight plaintext"><code>$ rails g devise User
+$ rails db:migrate
+</code></pre>
+<p>You can find links to sign up and sign in at /users/sign_in. You can also restrict anonymous visitors from accessing parts of your app.</p>
+<pre class="highlight ruby"><code><span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+  <span class="n">before_action</span> <span class="ss">:authenticate_user!</span>
+<span class="k">end</span>
+</code></pre>
+<h2>Content Types and Fields</h2>
+
+<p>Drupal provides the ability to create content types with custom fields. It also makes it possible to list, add, edit, view, and delete content. This must require a lot of code in Rails, right? Wrong. Rails provides generators for creating models, controllers, views, and more. Suppose we have a Post content type in Drupal with a title, body. To create something similar in Rails, we can use the scaffold generator.</p>
+<pre class="highlight plaintext"><code>$ rails g scaffold Post title:string body:text
+$ rails db:migrate
+</code></pre>
+<p>The above code creates a Post model (app/models/post.rb), database migration, routes, a controller with actions for adding, editing, viewing, indexing, and deleting posts, and more. If you visit /posts, you&rsquo;ll see links to everything you need. Adding other field types like select menus, enums, and radio buttons requires a little bit more work, but not as much as you might expect.</p>
+
+<h2>User Authorization</h2>
+
+<p>Drupal provides support for permissions. Rails doesn&rsquo;t. However, the Pundit gem makes it pretty easy.</p>
+
+<p>Add pundit to your Gemfile.</p>
+<pre class="highlight ruby"><code><span class="n">gem</span> <span class="s1">'pundit'</span>
+</code></pre>
+<p>Install it.</p>
+<pre class="highlight plaintext"><code>$ bundle install
+$ rails g pundit:install
+</code></pre>
+<p>Include Pundit in your application controller.</p>
+<pre class="highlight ruby"><code><span class="k">class</span> <span class="nc">ApplicationController</span> <span class="o">&lt;</span> <span class="no">ActionController</span><span class="o">::</span><span class="no">Base</span>
+  <span class="kp">include</span> <span class="no">Pundit</span>
+<span class="k">end</span>
+</code></pre>
+<p>Suppose we have a Post model and we only want logged-in users to be able to view posts. Let&rsquo;s authorize the post in the controller&rsquo;s show method.</p>
+<pre class="highlight ruby"><code><span class="k">class</span> <span class="nc">PostsController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="k">def</span> <span class="nf">show</span>
+    <span class="vi">@post</span> <span class="o">=</span> <span class="n">authorize</span> <span class="no">Post</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="ss">:id</span><span class="p">])</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+<p>Calling authorize will instantiate a post policy with the current user and the post record. It will raise an exception if the show? method returns a false-y value. By simply returning the user, non-logged-in visitors will raise an exception and logged-in users will be able to view the post.</p>
+<pre class="highlight ruby"><code><span class="c1"># /app/policies/post_policy.rb</span>
+<span class="k">class</span> <span class="nc">PostPolicy</span> <span class="o">&lt;</span> <span class="no">ApplicationPolicy</span>
+  <span class="k">def</span> <span class="nf">show?</span>
+    <span class="n">user</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+<h2>Views</h2>
+
+<p>Drupal&rsquo;s Views UI helps create blocks and pages that display certain types of content based on certain criteria. In Drupal, you can create a block that displays the titles of the 5 most recent posts linked to their URLs in minutes. Well, you can do it in Rails, too. Let&rsquo;s add one to our homepage.</p>
+<pre class="highlight ruby"><code><span class="c1"># app/controllers/welcome_controller.rb</span>
+<span class="k">class</span> <span class="nc">WelcomeController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+  <span class="k">def</span> <span class="nf">index</span>
+    <span class="vi">@posts</span> <span class="o">=</span> <span class="no">Post</span><span class="p">.</span><span class="nf">last</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre><pre class="highlight erb"><code># app/views/welcome/index.html.erb
+<span class="cp">&lt;%</span> <span class="vi">@posts</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">post</span><span class="o">|</span> <span class="cp">%&gt;</span>
+  <span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="n">post</span><span class="p">.</span><span class="nf">title</span><span class="p">,</span> <span class="n">post</span> <span class="cp">%&gt;</span><span class="nt">&lt;br&gt;</span>
+<span class="cp">&lt;%</span> <span class="k">end</span> <span class="cp">%&gt;</span>
+</code></pre>
+<p>You can see that Rails doesn&rsquo;t require a ton of code to do some of the things that Drupal can do. Plus, you have control over the code. When you want to do something interesting, you don&rsquo;t have to create a custom module, describe it to Drupal, enable it, and wrestle with multiple &ldquo;hooks&rdquo; to determine where to put your code. Rails provides a clean directory structure and a wide array of classes and helper functions you can leverage to build your app&hellip; without getting in your way!</p>
+
+<p>I hope you&rsquo;ll consider Ruby on Rails for your next project. I did years ago, and I haven&rsquo;t regretted it.</p>
+
+<p>Thinking about it? Reach out to me on Twitter at <a href="http://twitter.com/elegantbrew">@elegantbrew</a> if you have any questions.</p>
+
+	  </div>
+	</div>
+      </div>
+    </div>
+
+    <footer id="footer">
+  <a href="/">home</a> |
+  <a href="/about">about</a> |
+  <a href="/blog">blog</a> |
+  <a href="/contact">contact</a> |
+  <a class="mailto-link" data-email="psparrow25-at-gmail-dot-com" data-label="email"></a>
+  <br>
+  copyright &copy; 2017 <a href="/">elegantbrew.com</a>.
+</footer>
+
+  </body>
+</html>
