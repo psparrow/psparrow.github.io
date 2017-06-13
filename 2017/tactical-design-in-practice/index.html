@@ -7,7 +7,7 @@
         content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
   <!-- Use title if it's in the page YAML frontmatter -->
-  <title>Elegant Brew: Tactical Design in Practice</title>
+  <title>Elegant Brew</title>
 
   <script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
 
@@ -23,7 +23,7 @@
 	  <h1><a href="/">Elegant Brew</a></h1>
 	</div>
 	<div class="col-sm-8 col-md-7 col-lg-9 bg-blue text-left">
-	  <h1><a href="/2017/tactical-design-in-practice/">Tactical Design in Practice</a></h1>
+	  <h1><a href="/2017/tactical-design-in-practice/"></a></h1>
 	</div>
       </div>
     </div>
@@ -32,7 +32,11 @@
       <div class="container">
 	<div class="row">
 	  <div class="col-sm-12">
-	    <p>To new designers or seasoned developers starting to think more about design, the SOLID principles can seem too academic and can be hard to remember. They apply mostly at the class level, whereas object-oriented programming usually occurs at the method level. So, some of the principles can be hard to think about during development.</p>
+	    <hr>
+
+<h2>title: Tactical Design in Practice</h2>
+
+<p>To new designers or seasoned developers starting to think more about design, the SOLID principles can seem too academic and can be hard to remember. They apply mostly at the class level, whereas object-oriented programming usually occurs at the method level. So, some of the principles can be hard to think about during development.</p>
 
 <p>Glenn Vanderburg gave a talk about this in 2008 titled Tactical Design. In it, he proposes another set of five rules - well, two rules and three principles. These rules are easier to remember and put into practice as they are simpler and focus mostly on method-level concerns.</p>
 
@@ -296,28 +300,28 @@
 
 <p>The parseRequest method checks the values of $_POST and stores them in instance variables for use by the other methods.</p>
 <pre class="highlight php"><code><span class="cp">&lt;?php</span>
-    <span class="k">protected</span> <span class="k">function</span> <span class="nf">parseRequest</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nv">$url</span> <span class="o">=</span> <span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'url'</span><span class="p">])</span> <span class="o">?</span> <span class="nx">sanitize_url</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'url'</span><span class="p">])</span> <span class="o">:</span> <span class="s1">''</span><span class="p">;</span>
-        <span class="k">if</span><span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$url</span><span class="p">))</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Missing image URL'</span><span class="p">);</span>
+<span class="k">protected</span> <span class="k">function</span> <span class="nf">parseRequest</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nv">$url</span> <span class="o">=</span> <span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'url'</span><span class="p">])</span> <span class="o">?</span> <span class="nx">sanitize_url</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'url'</span><span class="p">])</span> <span class="o">:</span> <span class="s1">''</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$url</span><span class="p">))</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Missing image URL'</span><span class="p">);</span>
 
-        <span class="k">if</span><span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="s1">'http://delivery.gettyimages.com/'</span><span class="p">)</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> 
-            <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Invalid URL'</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="s1">'http://delivery.gettyimages.com/'</span><span class="p">)</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> 
+        <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Invalid URL'</span><span class="p">);</span>
 
-        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">is_array</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]))</span>
-            <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Missing image meta'</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">is_array</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]))</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Missing image meta'</span><span class="p">);</span>
 
-        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">is_array</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]))</span> 
-            <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Invalid image meta'</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">is_array</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]))</span> 
+        <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Invalid image meta'</span><span class="p">);</span>
 
-        <span class="nb">preg_match</span><span class="p">(</span><span class="s1">'/[^?]+\.(jpe?g|jpe|gif|png)\b/i'</span><span class="p">,</span> <span class="nv">$url</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">);</span>
-        <span class="k">if</span><span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$matches</span><span class="p">))</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Invalid filename'</span><span class="p">);</span>
+    <span class="nb">preg_match</span><span class="p">(</span><span class="s1">'/[^?]+\.(jpe?g|jpe|gif|png)\b/i'</span><span class="p">,</span> <span class="nv">$url</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$matches</span><span class="p">))</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Invalid filename'</span><span class="p">);</span>
 
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">url</span> <span class="o">=</span> <span class="nv">$url</span><span class="p">;</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">fileName</span> <span class="o">=</span> <span class="nb">basename</span><span class="p">(</span><span class="nv">$matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">gettyId</span> <span class="o">=</span> <span class="nx">sanitize_text_field</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]);</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parentId</span> <span class="o">=</span> <span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">])</span> <span class="o">?</span> <span class="p">(</span><span class="nx">int</span><span class="p">)</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">meta</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">];</span>
-    <span class="p">}</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">url</span> <span class="o">=</span> <span class="nv">$url</span><span class="p">;</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">fileName</span> <span class="o">=</span> <span class="nb">basename</span><span class="p">(</span><span class="nv">$matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">gettyId</span> <span class="o">=</span> <span class="nx">sanitize_text_field</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]);</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parentId</span> <span class="o">=</span> <span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">])</span> <span class="o">?</span> <span class="p">(</span><span class="nx">int</span><span class="p">)</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">meta</span> <span class="o">=</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">];</span>
+<span class="p">}</span>
 </code></pre>
 <p>The downloadFile method downloads the file and stores the temporary name in an instance variable.</p>
 <pre class="highlight php"><code><span class="cp">&lt;?php</span>
