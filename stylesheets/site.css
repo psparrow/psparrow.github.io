@@ -6868,3 +6868,6 @@ body.print {
   background-color: #EB674D; }
   .bg-red * {
     color: #FFF; }
+
+.highlight {
+  font-size: 0.8em; }
