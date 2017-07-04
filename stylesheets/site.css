@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css?family=Ubuntu+Mono|Cabin:400|Source+Sans+Pro:700");
+@import url("https://fonts.googleapis.com/css?family=Inconsolata|Cabin:400|Source+Sans+Pro:700");
 /*!
  * Bootstrap v4.0.0-alpha.6 (https://getbootstrap.com)
  * Copyright 2011-2017 The Bootstrap Authors
@@ -569,7 +569,7 @@ code,
 kbd,
 pre,
 samp {
-  font-family: "Ubuntu Mono", monospace; }
+  font-family: "Inconsolata", monospace; }
 
 code {
   padding: 0.2rem 0.4rem;
@@ -6822,10 +6822,10 @@ h1, h2, h3 {
   border-bottom: none; }
 
 .highlight {
-  background-color: #E8E8E8 !important;
+  background-color: #000 !important;
   padding: 8px;
-  line-height: 1;
-  font-size: 1em; }
+  line-height: 1.25;
+  font-size: 1.25em; }
 
 h1, h2, h3, h4, h5, h6 {
   line-height: 1.5em; }

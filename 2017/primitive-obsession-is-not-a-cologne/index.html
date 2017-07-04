@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+  <head>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Use title if it's in the page YAML frontmatter -->
+  <title>Elegant Brew: Primitive Obsession Is Not a Cologne</title>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+
+  <link href="/stylesheets/highlighting.css" rel="stylesheet" />
+  <link href="/stylesheets/site.css" rel="stylesheet" />
+  <script src="/javascripts/site.js"></script>
+</head>
+
+  <body class="x2017 x2017_primitive-obsession-is-not-a-cologne x2017_primitive-obsession-is-not-a-cologne_index inner">
+    <div class="container-fluid site-header">
+      <div class="row">
+	<div class="col-sm-4 col-md-5 col-lg-3 bg-red text-right">
+	  <h1><a href="/">Elegant Brew</a></h1>
+	</div>
+	<div class="col-sm-8 col-md-7 col-lg-9 bg-blue text-left">
+	  <h1><a href="/2017/primitive-obsession-is-not-a-cologne/">Primitive Obsession Is Not a Cologne</a></h1>
+	</div>
+      </div>
+    </div>
+
+    <div id="main-content">
+      <div class="container">
+	<div class="text-right small text-muted">
+  <p>Updated July 4 2017</p>
+</div>
+
+	<p>Today, I&rsquo;m pairing, but not the way you might expect. I&rsquo;m pairing craft beer with craft code. The beer is Ithaca Brewing Company&rsquo;s Creeker - a juicy, malty, bready double IPA that clocks in at 8.5% ABV and reminds me of a stronger version of Heavy Seas&rsquo;s Loose Cannon. It smells great!</p>
+
+<p>The code does not smell great. It&rsquo;s an example of primitive obsession, which is, ironically, not a cologne. It&rsquo;s a code smell that arises when primitives (e.g. strings, integers, etc.) are used in place of objects.</p>
+
+<p></p>
+
+<p>Let&rsquo;s say we have a person class of which instances have a name and a phone number.</p>
+<pre class="highlight ruby"><code><span class="k">class</span> <span class="nc">Person</span>
+  <span class="kp">attr_reader</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:phone_number</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">:,</span> <span class="n">phone_number</span><span class="p">:)</span>
+    <span class="vi">@name</span><span class="p">,</span> <span class="vi">@phone_number</span> <span class="o">=</span> <span class="nb">name</span><span class="p">,</span> <span class="n">phone_number</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">person</span> <span class="o">=</span> <span class="no">Person</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">name: </span><span class="s1">'Ford'</span><span class="p">,</span> <span class="ss">phone_number: </span><span class="s1">'210-690-4242'</span><span class="p">)</span>
+<span class="n">person</span><span class="p">.</span><span class="nf">name</span> <span class="c1">#=&gt; Ford</span>
+<span class="n">person</span><span class="p">.</span><span class="nf">phone_number</span> <span class="c1">#=&gt; 210-690-4242</span>
+</code></pre>
+<p>Now, let&rsquo;s add a new requirement. We want to know if a person has a valid phone number. We can accomplish this by adding a method that checks if the phone number matches a common format.</p>
+<pre class="highlight ruby"><code><span class="k">class</span> <span class="nc">Person</span>
+  <span class="c1"># ... code omitted ...</span>
+
+  <span class="k">def</span> <span class="nf">valid_phone_number?</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="sr">/^\d{10}$/</span><span class="p">,</span> <span class="c1"># XXXXXXXXXX</span>
+      <span class="sr">/^\d{3}-\d{3}-\d{4}$/</span><span class="p">,</span> <span class="c1"># XXX-XXX-XXXX</span>
+      <span class="sr">/^\d{3}\.\d{3}\.\d{4}$/</span><span class="p">,</span> <span class="c1"># XXX.XXX.XXXX</span>
+      <span class="sr">/^\(\d{3}\)\s{0,1}\d{3}-\d{4}$/</span><span class="p">,</span> <span class="c1"># (XXX)XXX-XXXX, (XXX) XXX-XXXX</span>
+    <span class="p">]</span>
+
+    <span class="n">patterns</span><span class="p">.</span><span class="nf">any?</span> <span class="p">{</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="p">.</span><span class="nf">match?</span> <span class="n">phone_number</span><span class="p">.</span><span class="nf">to_s</span> <span class="p">}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">ford</span> <span class="o">=</span> <span class="no">Person</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">name: </span><span class="s1">'Ford'</span><span class="p">,</span> <span class="ss">phone_number: </span><span class="s1">'210-690-4242'</span><span class="p">)</span>
+<span class="n">ford</span><span class="p">.</span><span class="nf">valid_phone_number?</span> <span class="c1">#=&gt; true</span>
+
+<span class="n">arthur</span> <span class="o">=</span> <span class="no">Person</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">name: </span><span class="s1">'Arthur'</span><span class="p">,</span> <span class="ss">phone_number: </span><span class="s1">'555-1212'</span><span class="p">)</span>
+<span class="n">arthur</span><span class="p">.</span><span class="nf">valid_phone_number?</span> <span class="c1">#=&gt; false</span>
+</code></pre>
+<p>This works, and the person class is still small. However, the person class arguably should not know how to validate a phone number. The person class should only be responsible for things directly related to a person. What if we want to convert the phone number to different formats? Should the person class hold those methods? By using a primitive (i.e. a string)  to store the phone number, we&rsquo;re left with no good place to put the responsibilities related to working with phone numbers. This is a case of primitive obsession.</p>
+
+<p>To fix it, let&rsquo;s create a new abstraction - a separate phone number class. We can move the phone number validation code there.</p>
+<pre class="highlight ruby"><code><span class="k">class</span> <span class="nc">PhoneNumber</span>
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="vi">@value</span> <span class="o">=</span> <span class="n">value</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">valid?</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="sr">/^\d{10}$/</span><span class="p">,</span> <span class="c1"># XXXXXXXXXX</span>
+      <span class="sr">/^\d{3}-\d{3}-\d{4}$/</span><span class="p">,</span> <span class="c1"># XXX-XXX-XXXX</span>
+      <span class="sr">/^\d{3}\.\d{3}\.\d{4}$/</span><span class="p">,</span> <span class="c1"># XXX.XXX.XXXX</span>
+      <span class="sr">/^\(\d{3}\)\s{0,1}\d{3}-\d{4}$/</span><span class="p">,</span> <span class="c1"># (XXX)XXX-XXXX, (XXX) XXX-XXXX</span>
+    <span class="p">]</span>
+
+    <span class="n">patterns</span><span class="p">.</span><span class="nf">any?</span> <span class="p">{</span> <span class="o">|</span><span class="nb">p</span><span class="o">|</span> <span class="nb">p</span><span class="p">.</span><span class="nf">match?</span> <span class="vi">@value</span><span class="p">.</span><span class="nf">to_s</span> <span class="p">}</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+
+<span class="n">phone_number</span> <span class="o">=</span> <span class="no">PhoneNumber</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'123-123-1234'</span><span class="p">)</span>
+<span class="n">phone_number</span><span class="p">.</span><span class="nf">valid?</span> <span class="c1">#=&gt; true</span>
+</code></pre>
+<p>We can remove the validation code from the person class and delegate the validity check to the phone number.</p>
+<pre class="highlight ruby"><code><span class="k">class</span> <span class="nc">Person</span>
+  <span class="kp">attr_reader</span> <span class="ss">:name</span><span class="p">,</span> <span class="ss">:phone_number</span>
+
+  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="nb">name</span><span class="p">:,</span> <span class="n">phone_number</span><span class="p">:)</span>
+    <span class="vi">@name</span><span class="p">,</span> <span class="vi">@phone_number</span> <span class="o">=</span> <span class="nb">name</span><span class="p">,</span> <span class="n">phone_number</span>
+  <span class="k">end</span>
+
+  <span class="k">def</span> <span class="nf">valid_phone_number?</span>
+    <span class="n">phone_number</span><span class="p">.</span><span class="nf">valid?</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+<p>Now, when we create people, we can give them phone number objects instead of strings.</p>
+<pre class="highlight ruby"><code><span class="n">ford</span> <span class="o">=</span> <span class="no">Person</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">name: </span><span class="s1">'Ford'</span><span class="p">,</span> <span class="ss">phone_number: </span><span class="no">PhoneNumber</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'210-690-4242'</span><span class="p">))</span>
+<span class="nb">p</span> <span class="n">ford</span><span class="p">.</span><span class="nf">valid_phone_number?</span> <span class="c1">#=&gt; true</span>
+
+<span class="n">arthur</span> <span class="o">=</span> <span class="no">Person</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">name: </span><span class="s1">'Arthur'</span><span class="p">,</span> <span class="ss">phone_number: </span><span class="no">PhoneNumber</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'foo'</span><span class="p">))</span>
+<span class="nb">p</span> <span class="n">arthur</span><span class="p">.</span><span class="nf">valid_phone_number?</span> <span class="c1">#=&gt; false</span>
+</code></pre>
+<p>Being able to identify and alleviate code smells is one of the most important tools in your refactoring toolkit. If you are not familiar with the topic of code smells and/or refactoring, <a href="https://sourcemaking.com">Source Making</a> is a great reference. Cheers!</p>
+
+      </div>
+    </div>
+
+    <footer id="footer">
+  <a href="/">home</a> |
+  <a href="/about">about</a> |
+  <a href="/blog">blog</a> |
+  <a href="/contact">contact</a> |
+  <a class="mailto-link" data-email="psparrow25-at-gmail-dot-com" data-label="email"></a>
+  <br>
+  copyright &copy; 2017 <a href="/">elegantbrew.com</a>.
+</footer>
+
+  </body>
+</html>
