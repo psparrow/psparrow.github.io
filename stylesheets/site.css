@@ -6871,3 +6871,6 @@ body.print {
 
 .highlight {
   font-size: 0.8em; }
+
+.article-summary .hidden-summary {
+  display: none; }
