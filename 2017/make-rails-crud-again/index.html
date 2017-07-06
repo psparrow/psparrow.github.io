@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+  <head>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Use title if it's in the page YAML frontmatter -->
+  <title>Elegant Brew: MAKE RAILS CRUD AGAIN</title>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+
+  <link href="/stylesheets/highlighting.css" rel="stylesheet" />
+  <link href="/stylesheets/site.css" rel="stylesheet" />
+  <script src="/javascripts/site.js"></script>
+</head>
+
+  <body class="x2017 x2017_make-rails-crud-again x2017_make-rails-crud-again_index inner">
+    <div class="container-fluid site-header">
+      <div class="row">
+	<div class="col-sm-4 col-md-5 col-lg-3 bg-red text-right">
+	  <h1><a href="/">Elegant Brew</a></h1>
+	</div>
+	<div class="col-sm-8 col-md-7 col-lg-9 bg-blue text-left">
+	  <h1><a href="/2017/make-rails-crud-again/">MAKE RAILS CRUD AGAIN</a></h1>
+	</div>
+      </div>
+    </div>
+
+    <div id="main-content">
+      <div class="container">
+	
+	<div class="row">
+  <div class="col-md-8 offset-md-2 text-center">
+    <img src="/images/make-rails-crud-again.png" alt="Make Rails Crud Again" class="img-fluid">
+  </div>
+</div>
+
+<p>Routes in Ruby on Rails should rarely not be RESTful. Also, alliteration is always awesome!</p>
+
+<p>REST is an acronym for Representational State Transfer. Without getting too academic, it refers to using URLs to identify resources (e.g. /products/42) and HTTP methods (e.g. POST) to identify actions. In a RESTful system, one would expect <code>DELETE /products/42</code> to delete the product with unique identifier 42.</p>
+
+<p>By adhering to the convenient Rails routing conventions, we can easily setup RESTful routes to handle the typical CRUD (i.e. create, read, update, delete) actions for our resources.</p>
+<pre class="highlight ruby"><code><span class="c1"># config/routes.rb</span>
+<span class="n">resources</span> <span class="ss">:products</span>
+</code></pre>
+<p>Now, let&rsquo;s run <code>$ rails routes</code>.</p>
+<pre class="highlight plaintext"><code>$ rails routes
+      Prefix Verb   URI Pattern                  Controller#Action
+    products GET    /products(.:format)          products#index
+         POST   /products(.:format)          products#create
+ new_product GET    /products/new(.:format)      products#new
+edit_product GET    /products/:id/edit(.:format) products#edit
+     product GET    /products/:id(.:format)      products#show
+         PATCH  /products/:id(.:format)      products#update
+         PUT    /products/:id(.:format)      products#update
+         DELETE /products/:id(.:format)      products#destroy
+</code></pre>
+<p>This reveals the URLs and controller actions to which they map. A <code>GET</code> request to <code>/products/new</code> triggers the <code>new</code> action in the products controller. A <code>PUT</code> or <code>PATCH</code> request to <code>/products/:id</code> triggers the <code>update</code> action in the products controller. You get the picture.</p>
+
+<p>If we want to omit a specific action like deleting a product, we can tell Rails to omit that action:</p>
+<pre class="highlight ruby"><code><span class="c1"># config/routes.rb</span>
+<span class="n">resources</span> <span class="ss">:products</span><span class="p">,</span> <span class="ss">except: </span><span class="p">[</span><span class="ss">:destroy</span><span class="p">]</span>
+</code></pre><pre class="highlight plaintext"><code>$ rails routes
+      Prefix Verb   URI Pattern                  Controller#Action
+    products GET    /products(.:format)          products#index
+         POST   /products(.:format)          products#create
+ new_product GET    /products/new(.:format)      products#new
+edit_product GET    /products/:id/edit(.:format) products#edit
+     product GET    /products/:id(.:format)      products#show
+         PATCH  /products/:id(.:format)      products#update
+         PUT    /products/:id(.:format)      products#update
+</code></pre>
+<p>Using RESTful routes and CRUD actions across all controllers gives our apps consistency and makes the controller level easy for other developers to understand. It also helps keep the controllers slim and easy to manage.</p>
+
+<h3>New Requirement</h3>
+
+<p>What happens when we encounter an action that doesn&rsquo;t quite fit the CRUD acronym? Suppose our client wants to be able to archive a product. On one hand, archiving can be as simple as adding an &ldquo;Archived?&rdquo; checkbox to the product form. On the other hand, if the app needs to send out email notifications or run another background job when a product is archived, it will be much cleaner to separate archiving into it&rsquo;s own route/action.</p>
+
+<p>Rails provides the abilty to extend resource routes beyong the typical CRUD actions via the <code>member</code> method.</p>
+<pre class="highlight ruby"><code><span class="c1"># config/routes.rb</span>
+
+<span class="n">resources</span> <span class="ss">:products</span> <span class="k">do</span>
+  <span class="n">member</span> <span class="k">do</span>
+    <span class="n">post</span> <span class="s1">'archive'</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+<p>This adds a new URL that maps to the archive action of our products controller.</p>
+<pre class="highlight plaintext"><code>archive_product POST   /products/:id/archive(.:format) products#archive
+</code></pre>
+<p>Assuming we setup our products controller and coded the archive method, we can now add a link in our views to archive a product:</p>
+<pre class="highlight erb"><code><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s1">'Archive'</span><span class="p">,</span> <span class="n">archive_product_path</span><span class="p">(</span><span class="vi">@product</span><span class="p">),</span> <span class="ss">method: :post</span> <span class="cp">%&gt;</span>
+</code></pre>
+<h3>CRUDA+?</h3>
+
+<p>We may be tempted to use this approach when adding non-CRUD actions. After all, it&rsquo;s just one extra method, right? Instead of CRUD, our app is CRUDA (A for archive)!</p>
+
+<p>What happens when we need to add the ability to un-archive a product? We can just add an unarchive member route and corresponding action, right? Now, we have CRUDAU. Or, maybe to keep it short, CRUDA+!</p>
+
+<p>Now, things are getting confusing. Our products controller has two extra methods, and our nice little CRUD acronym no longer holds up. A developer looking at our code might not understand how the archive and unarchive actions are used, and our products controller is gaining new responsibilities which will lead to new reasons to change in the future.</p>
+
+<h3>A Metaphor</h3>
+
+<p>Think of the LGBT community. LGBT is an abbreviation that represents individuals who are marginalized based on sexual preference or gender identity. It&rsquo;s powerful because it&rsquo;s simple, memorable, and it covers groups that are arguably fighting the same battle.</p>
+
+<p>Eventually, due to many individuals feeling like the LGBT abbreviation doesn&rsquo;t accurately describe their identities, LGBT was expanded to LGBTQ. When that wasn&rsquo;t enough, abbreviations like LGBTQ+, LGBTQQ, LGBTI, and even <a href="http://www.salon.com/2007/10/08/lgbt/" target="_blank">LGBTTTIQQA</a> arose.</p>
+
+<p>I respect everyone as an individual, and I am supportive of marginalized groups fighting for equal rights. However, it&rsquo;s completely understandable for outsiders to be confused by and even dismissive of a group that gives itself a label as confusing as LGBTTTIQQA.</p>
+
+<h3>A Different Way of Thinking</h3>
+
+<p>If we want our controllers to remain under the CRUD acronym, we need to find a new home for the code that archives a product. We need to change the way we think of archiving so that we&rsquo;re creating, reading, updating, or deleting something.</p>
+
+<p>If you&rsquo;ve ever used the Devise gem for user authentication, you&rsquo;ve seen an example of this. It may be intuitive and tempting to place the action for logging a user into the app in a login method inside the users controller. However, Devise says &ldquo;We&rsquo;re not logging in a user. We&rsquo;re creating a session!&rdquo; So, the code for logging a user into the app belongs in the create method of a sessions controller.</p>
+
+<p>There are multiple ways to think about the action of archiving a product. Here&rsquo;s one way: instead of archiving a product, let&rsquo;s say we&rsquo;re creating an archive.</p>
+<pre class="highlight ruby"><code><span class="n">resources</span> <span class="ss">:products</span> <span class="k">do</span>
+  <span class="n">resource</span> <span class="ss">:archive</span><span class="p">,</span> <span class="ss">only: </span><span class="p">[</span><span class="ss">:create</span><span class="p">]</span>
+<span class="k">end</span>
+</code></pre><pre class="highlight plaintext"><code>$ rails routes | grep archive
+product_archive POST   /products/:product_id/archive(.:format) archives#create
+</code></pre>
+<p>Now, the URL for archiving a product maps to the create action of the archives controller. We can still include an archive link in our views.</p>
+<pre class="highlight erb"><code><span class="cp">&lt;%=</span> <span class="n">link_to</span> <span class="s1">'Archive'</span><span class="p">,</span> <span class="n">product_archive_path</span><span class="p">(</span><span class="vi">@product</span><span class="p">),</span> <span class="ss">method: :post</span> <span class="cp">%&gt;</span>
+</code></pre>
+<p>Our controllers are both RESTful and limited to CRUD responsibilies.</p>
+
+<p>Make Rails Crud Again! <a href="https://makehatsgreatagain.us/products/red-hat?t=RAILS&a=CRUD" target="_blank">Buy the hat!</a></p>
+
+      </div>
+    </div>
+
+    <footer id="footer">
+  <a href="/">home</a> |
+  <a href="/about">about</a> |
+  <a href="/blog">blog</a> |
+  <a href="/contact">contact</a> |
+  <a class="mailto-link" data-email="psparrow25-at-gmail-dot-com" data-label="email"></a>
+  <br>
+  copyright &copy; 2017 <a href="/">elegantbrew.com</a>.
+</footer>
+
+  </body>
+</html>
