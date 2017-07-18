@@ -1,0 +1,262 @@
+<!doctype html>
+<html>
+  <head>
+  <meta content="IE=edge" http-equiv="X-UA-Compatible">
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Use title if it's in the page YAML frontmatter -->
+  <title>Elegant Brew: Thinking Programmatically</title>
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+
+  <link href="/stylesheets/highlighting.css" rel="stylesheet" />
+  <link href="/stylesheets/site.css" rel="stylesheet" />
+  <script src="/javascripts/site.js"></script>
+</head>
+
+  <body class="x2017 x2017_thinking-programmatically x2017_thinking-programmatically_index inner">
+    <div class="container-fluid site-header">
+      <div class="row">
+	<div class="col-sm-4 col-md-5 col-lg-3 bg-red text-right">
+	  <h1><a href="/">Elegant Brew</a></h1>
+	</div>
+	<div class="col-sm-8 col-md-7 col-lg-9 bg-blue text-left">
+	  <h1><a href="/2017/thinking-programmatically/">Thinking Programmatically</a></h1>
+	</div>
+      </div>
+    </div>
+
+    <div id="main-content">
+      <div class="container">
+	
+	<p>What makes someone a senior developer? Is it years of programming experience? Is
+it time spent mentoring less-experienced developers? Is it a knowledge of best
+practices and the ability to identify code that strays from them? It&rsquo;s obviously
+some combination of the above, but it&rsquo;s also the ability to think like a
+programmer.</p>
+
+<p></p>
+
+<p>This ability came naturally for me. I excelled at a Pascal course in high school
+and fell into a leadership role in most of my team assignments in college. Early
+on, I realized that the biggest struggle some students faced was simply getting
+into the programming mindset.</p>
+
+<p>After four years of college and over ten years working on real-world applications,
+I&rsquo;ve been thinking more about how programmers approach a problem, what makes good
+code, how to teach people about programming, etc. I&rsquo;ve been trying
+to take on a mentor role as my business partner and my wife - two separate people
+, both designers - learn more about programming.</p>
+
+<p>Recently, I&rsquo;ve been working through LeetCode and Project Euler exercises with my
+business partner Tim. This has refreshed my ability to think through algorithms
+and reminded me of the problems that budding developers face. Being
+highly-organized, I started thinking about how these various concerns could
+be arranged. I&rsquo;m still thinking through all of this, but what I came up with are
+the first three tiers of a software development hierarchy:</p>
+
+<ol>
+<li>Thinking like a programmer</li>
+<li>Encoding the algorithm</li>
+<li>Knowing the language</li>
+</ol>
+
+<p>This post takes a deeper look at all three.</p>
+
+<h3>Thinking like a programmer</h3>
+
+<p>Thinking like a programmer involves reducing a problem to a set of repeatable
+steps that can be followed to solve the problem. This is the first
+step in learning to code. It&rsquo;s also a key component in early computer science
+courses. Although, looking back, it&rsquo;s not explicitly stressed as much as it
+should be - which is why I think many students find the subject frustrating.</p>
+
+<p>Let&rsquo;s look at a simple <a href="https://leetcode.com/problems/array-partition-i">LeetCode Exercise</a>. Here&rsquo;s the description:</p>
+
+<p>Given an array of 2n integers, your task is to group these integers into n
+pairs of integer, say (a1, b1), (a2, b2), &hellip;, (an, bn) which makes sum of
+min(ai, bi) for all i from 1 to n as large as possible. In simpler terms,
+split an array of integers into two-element subarrays such that adding the
+lower value in each subarray gives you the maximum sum.</p>
+
+<p>How would a non-programmer even begin thinking about this problem? What if
+we change the problem so that the numbers are written on index cards?</p>
+
+<p>Lay out group of index cards with numbers written on them. Then, organize
+them into groups of two such that adding the lower number in each group
+gives the maximum sum.</p>
+
+<p>Suppose we have eight cards randomly numbered 1 through 8:</p>
+
+<p><span class="index-card">1</span>
+<span class="index-card">7</span>
+<span class="index-card">8</span>
+<span class="index-card">3</span>
+<span class="index-card">2</span>
+<span class="index-card">6</span>
+<span class="index-card">5</span>
+<span class="index-card">4</span></p>
+
+<p>No matter what we pair it with, the <span class="index-card">8</span> will
+always be the maximum value in the pair and will never be added to the sum.
+However, if we pair it with the next highest card,
+<span class="index-card">7</span>, we get to add 7 to our sum.</p>
+
+<p><span class="index-card">7</span>
+<span class="index-card">8</span><br>
+<span class="index-card">1</span>
+<span class="index-card">3</span>
+<span class="index-card">2</span>
+<span class="index-card">6</span>
+<span class="index-card">5</span>
+<span class="index-card">4</span></p>
+
+<p>Now that the <span class="index-card">7</span> and
+<span class="index-card">8</span> cards are paired, what do we do with the rest
+of the cards? <span class="index-card">6</span> is the highest remaining card. It
+will always be the maximum value in any pair. So, we should pair it with the next
+highest card, <span class="index-card">5</span>.</p>
+
+<p><span class="index-card">7</span>
+<span class="index-card">8</span><br>
+<span class="index-card">5</span>
+<span class="index-card">6</span><br>
+<span class="index-card">1</span>
+<span class="index-card">2</span>
+<span class="index-card">3</span>
+<span class="index-card">4</span></p>
+
+<p>A pattern is starting to emerge. We need to keep pairing up the two highest
+remaining cards until all of our cards are paired up. Now that we know how to
+solve the problem, let&rsquo;s code the solution.</p>
+
+<h3>Encoding the algorithm</h3>
+
+<p>Being able to express an idea with code is the next level of the hierarchy. Let&rsquo;s
+do it with Ruby!</p>
+
+<p>Going back to the actual coding exercise, LeetCode is expecting a method named
+array_pair_sum that accepts the array of numbers and returns the sum. Let&rsquo;s
+work through that method.</p>
+<pre class="highlight ruby"><code><span class="k">def</span> <span class="nf">array_pair_sum</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+  <span class="c1"># We need to code this part!</span>
+<span class="k">end</span>
+
+<span class="n">numbers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+<span class="n">array_pair_sum</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span> <span class="c1">#=&gt; This should return the sum</span>
+</code></pre>
+<p>We&rsquo;ll be adding a bunch of numbers together. So, let&rsquo;s start with a sum of 0.</p>
+<pre class="highlight ruby"><code><span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre>
+<p>In the index card version, we had all of the cards in front of us and could
+easily pick out the two highest cards. How can we do that in our code? One
+option is to sort the array first so all of the numbers are in order. Then, the
+last two numbers will always be the highest. Let&rsquo;s create a sorted copy of the
+numbers array.</p>
+<pre class="highlight ruby"><code><span class="n">nums</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="nf">sort</span>
+<span class="n">nums</span> <span class="c1">#=&gt; [1, 2, 3, 4, 5, 6, 7, 8]</span>
+</code></pre>
+<p>Now, we can split the numbers array into separate arrays of two. We&rsquo;ll start with
+an empty array of pairs and use Ruby&rsquo;s pop method to remove the last two numbers
+and add them to the pairs array until there are no numbers left.</p>
+<pre class="highlight ruby"><code><span class="n">pairs</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">while</span> <span class="o">!</span><span class="n">nums</span><span class="p">.</span><span class="nf">empty?</span>
+  <span class="n">pairs</span> <span class="o">&lt;&lt;</span> <span class="n">nums</span><span class="p">.</span><span class="nf">pop</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre>
+<p>Finally, we can go through all of the pairs and add the minimum of each pair to
+the sum.</p>
+<pre class="highlight ruby"><code><span class="n">pairs</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">pair</span><span class="o">|</span>
+  <span class="n">sum</span> <span class="o">+=</span> <span class="n">pair</span><span class="p">.</span><span class="nf">min</span>
+<span class="k">end</span>
+</code></pre>
+<p>Here&rsquo;s the code in its entirety:</p>
+<pre class="highlight ruby"><code><span class="k">def</span> <span class="nf">array_pair_sum</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+  <span class="n">nums</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="nf">sort</span>
+  <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="n">pairs</span> <span class="o">=</span> <span class="p">[]</span>
+
+  <span class="k">while</span> <span class="o">!</span><span class="n">nums</span><span class="p">.</span><span class="nf">empty?</span>
+    <span class="n">pairs</span> <span class="o">&lt;&lt;</span> <span class="n">nums</span><span class="p">.</span><span class="nf">pop</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="n">pairs</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">pair</span><span class="o">|</span>
+    <span class="n">sum</span> <span class="o">+=</span> <span class="n">pair</span><span class="p">.</span><span class="nf">min</span>
+  <span class="k">end</span>
+
+  <span class="n">sum</span>
+<span class="k">end</span>
+</code></pre>
+<p>A lot of developers, especially junior developers, might stop there. However,
+a more experienced developer who knows the ins-and-outs of Ruby could refactor
+this code into something much simpler.</p>
+
+<h3>Knowing the language</h3>
+
+<p>Having a deep knowledge of your language allows you to refactor your code into
+cleaner, simpler solutions. Let&rsquo;s see if we can take advantage of Ruby and
+simplify the array_pair_sum method.</p>
+
+<p>First, we can use Ruby&rsquo;s map and reduce methods to calculate the sum. Map runs
+a block for each element in an array and returns a new array that
+contains the results. We can use it to turn our array of pairs into an array of
+the minimum values of each pair. Reduce combines all of the elements of the
+array into a single value. We can use it to add all of the minimum values
+together.</p>
+<pre class="highlight ruby"><code><span class="k">def</span> <span class="nf">array_pair_sum</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+  <span class="n">nums</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="nf">sort</span>
+  <span class="n">pairs</span> <span class="o">=</span> <span class="p">[]</span>
+
+  <span class="k">while</span> <span class="o">!</span><span class="n">nums</span><span class="p">.</span><span class="nf">empty?</span>
+    <span class="n">pairs</span> <span class="o">&lt;&lt;</span> <span class="n">nums</span><span class="p">.</span><span class="nf">pop</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">end</span>
+
+  <span class="n">pairs</span><span class="p">.</span><span class="nf">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:min</span><span class="p">).</span><span class="nf">reduce</span><span class="p">(:</span><span class="o">+</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre>
+<p>Ruby&rsquo;s each_slice method breaks an array into chunks of a given size. We can
+use that to break the numbers into pairs. It returns an enumerator object, but
+we can convert it back into an array using the to_a method. This allows us to
+obtain the array of pairs without using a while loop.</p>
+<pre class="highlight ruby"><code><span class="k">def</span> <span class="nf">array_pair_sum</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+  <span class="n">nums</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="nf">sort</span>
+  <span class="n">pairs</span> <span class="o">=</span> <span class="n">nums</span><span class="p">.</span><span class="nf">each_slice</span><span class="p">(</span><span class="mi">2</span><span class="p">).</span><span class="nf">to_a</span>
+  <span class="n">pairs</span><span class="p">.</span><span class="nf">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:min</span><span class="p">).</span><span class="nf">reduce</span><span class="p">(:</span><span class="o">+</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre>
+<p>Notice that we&rsquo;re creating the nums array, using it to create the pairs array,
+and then operating on that. Why not just chain them all together and turn the
+method into a single line?</p>
+<pre class="highlight ruby"><code><span class="k">def</span> <span class="nf">array_pair_sum</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+  <span class="n">nums</span><span class="p">.</span><span class="nf">sort</span><span class="p">.</span><span class="nf">each_slice</span><span class="p">(</span><span class="mi">2</span><span class="p">).</span><span class="nf">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:min</span><span class="p">).</span><span class="nf">reduce</span><span class="p">(:</span><span class="o">+</span><span class="p">)</span>
+<span class="k">end</span>
+</code></pre>
+<p>We&rsquo;re not doing anything magical here. The code still reveals our intentions:
+sort the numbers, break them into pairs, get the minimum value of each pair,
+and add them together.</p>
+
+<p>That&rsquo;s it. We just thought through the problem like a programmer, coded a
+solution to it, and refactored it using the tools Ruby provides.</p>
+
+<p>I&rsquo;m already thinking of expanding this hierarchy to include object-oriented
+(or functional) design, testing, and refactoring, but I&rsquo;ll have to save that for
+another post.</p>
+
+      </div>
+    </div>
+
+    <footer id="footer">
+  <a href="/">home</a> |
+  <a href="/about">about</a> |
+  <a href="/blog">blog</a> |
+  <a href="/contact">contact</a> |
+  <a class="mailto-link" data-email="psparrow25-at-gmail-dot-com" data-label="email"></a>
+  <br>
+  copyright &copy; 2017 <a href="/">elegantbrew.com</a>.
+</footer>
+
+  </body>
+</html>

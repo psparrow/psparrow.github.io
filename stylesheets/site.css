@@ -6874,3 +6874,12 @@ body.print {
 
 .article-summary .hidden-summary {
   display: none; }
+
+.index-card {
+  border: 1px solid #363635;
+  padding: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
+  font-family: "Inconsolata", monospace;
+  display: inline-block;
+  line-height: 1rem; }
