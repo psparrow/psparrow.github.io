@@ -30,7 +30,10 @@
 
     <div id="main-content">
       <div class="container">
-	
+	<div class="text-right small text-muted">
+  <p>Last Update: June 9, 2017</p>
+</div>
+
 	<p>To new designers or seasoned developers starting to think more about design, the SOLID principles can seem too academic and can be hard to remember. They apply mostly at the class level, whereas object-oriented programming usually occurs at the method level. So, some of the principles can be hard to think about during development.</p>
 
 <p>Glenn Vanderburg gave a talk about this in 2008 titled Tactical Design. In it, he proposes another set of five rules - well, two rules and three principles. These rules are easier to remember and put into practice as they are simpler and focus mostly on method-level concerns.</p>
@@ -130,13 +133,13 @@
             <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">ajax_error</span><span class="p">(</span> <span class="nx">__</span><span class="p">(</span> <span class="s2">"Attachment not found"</span><span class="p">,</span> <span class="s1">'getty-images'</span> <span class="p">)</span> <span class="p">);</span>
         <span class="p">}</span>
 
-        <span class="nv">$post_parent</span> <span class="o">=</span> <span class="nb">isset</span><span class="p">(</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="p">)</span> <span class="o">?</span> <span class="p">(</span><span class="nx">int</span><span class="p">)</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="nv">$post_parent</span> <span class="o">=</span> <span class="nb">isset</span><span class="p">(</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="p">)</span> <span class="o">?</span> <span class="p">(</span><span class="nx">int</span><span class="p">)</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
 
         <span class="nx">wp_update_post</span><span class="p">(</span> <span class="k">array</span><span class="p">(</span>
             <span class="s1">'ID'</span> <span class="o">=&gt;</span> <span class="nv">$attachment</span><span class="o">-&gt;</span><span class="na">ID</span><span class="p">,</span>
             <span class="s1">'post_content'</span> <span class="o">=&gt;</span> <span class="s1">''</span><span class="p">,</span>
-            <span class="s1">'post_excerpt'</span> <span class="o">=&gt;</span> <span class="nv">$attachment</span><span class="o">-&gt;</span><span class="na">post_content</span><span class="p">,</span>
-            <span class="s1">'post_parent'</span> <span class="o">=&gt;</span> <span class="nv">$post_parent</span>
+        <span class="s1">'post_excerpt'</span> <span class="o">=&gt;</span> <span class="nv">$attachment</span><span class="o">-&gt;</span><span class="na">post_content</span><span class="p">,</span>
+        <span class="s1">'post_parent'</span> <span class="o">=&gt;</span> <span class="nv">$post_parent</span>
         <span class="p">)</span> <span class="p">);</span>
 
         <span class="nv">$getty_id</span> <span class="o">=</span> <span class="nx">sanitize_text_field</span><span class="p">(</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]</span> <span class="p">);</span>
@@ -160,11 +163,11 @@
         <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">ajax_success</span><span class="p">(</span> <span class="nx">__</span><span class="p">(</span> <span class="s2">"Image downloaded"</span><span class="p">,</span> <span class="s1">'getty-images'</span> <span class="p">),</span> <span class="nx">wp_prepare_attachment_for_js</span><span class="p">(</span> <span class="nv">$attachment_id</span> <span class="p">)</span> <span class="p">);</span>
     <span class="p">}</span>
 </code></pre>
-<p>What rules does this code violate? For starters, it&rsquo;s a long method. What responsibilities does it have? It validates the request, downloads an image, turns it into a wordpress attachment, deletes existing attachments of the same image, and updates the meta info for the attachment. It also deals with ajax requets. That&rsquo;s obviously more than one responsibility. </p>
+<p>What rules does this code violate? For starters, it&rsquo;s a long method. What responsibilities does it have? It validates the request, downloads an image, turns it into a wordpress attachment, deletes existing attachments of the same image, and updates the meta info for the attachment. It also deals with ajax requets. That&rsquo;s obviously more than one responsibility.</p>
 
-<p>The first line calls ajax_check(). Subsequent lines inspect individual pieces of the post request array. The code is not at a uniform level of abstraction. </p>
+<p>The first line calls ajax_check(). Subsequent lines inspect individual pieces of the post request array. The code is not at a uniform level of abstraction.</p>
 
-<p>There are multiple calls to ajax_error with &lsquo;getty-images&rsquo; passed as one of the arguments each time. That duplication can be abstracted into a separate method. </p>
+<p>There are multiple calls to ajax_error with &lsquo;getty-images&rsquo; passed as one of the arguments each time. That duplication can be abstracted into a separate method.</p>
 
 <p>This method is in a class with multiple other methods that do all sorts of things. So, it looks like it breaks all five of the rules of tactical design. Let&rsquo;s start refactoring it.</p>
 
@@ -246,13 +249,13 @@
             <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Attachment not found'</span><span class="p">);</span>
         <span class="p">}</span>
 
-        <span class="nv">$post_parent</span> <span class="o">=</span> <span class="nb">isset</span><span class="p">(</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="p">)</span> <span class="o">?</span> <span class="p">(</span><span class="nx">int</span><span class="p">)</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="nv">$post_parent</span> <span class="o">=</span> <span class="nb">isset</span><span class="p">(</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="p">)</span> <span class="o">?</span> <span class="p">(</span><span class="nx">int</span><span class="p">)</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'post_id'</span><span class="p">]</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
 
         <span class="nx">wp_update_post</span><span class="p">(</span> <span class="k">array</span><span class="p">(</span>
             <span class="s1">'ID'</span> <span class="o">=&gt;</span> <span class="nv">$attachment</span><span class="o">-&gt;</span><span class="na">ID</span><span class="p">,</span>
             <span class="s1">'post_content'</span> <span class="o">=&gt;</span> <span class="s1">''</span><span class="p">,</span>
-            <span class="s1">'post_excerpt'</span> <span class="o">=&gt;</span> <span class="nv">$attachment</span><span class="o">-&gt;</span><span class="na">post_content</span><span class="p">,</span>
-            <span class="s1">'post_parent'</span> <span class="o">=&gt;</span> <span class="nv">$post_parent</span>
+        <span class="s1">'post_excerpt'</span> <span class="o">=&gt;</span> <span class="nv">$attachment</span><span class="o">-&gt;</span><span class="na">post_content</span><span class="p">,</span>
+        <span class="s1">'post_parent'</span> <span class="o">=&gt;</span> <span class="nv">$post_parent</span>
         <span class="p">)</span> <span class="p">);</span>
 
         <span class="nv">$getty_id</span> <span class="o">=</span> <span class="nx">sanitize_text_field</span><span class="p">(</span> <span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]</span> <span class="p">);</span>
@@ -281,11 +284,11 @@
 <pre class="highlight php"><code><span class="cp">&lt;?php</span>
 <span class="k">class</span> <span class="nc">GettyImageAttacher</span> <span class="p">{</span>
     <span class="k">function</span> <span class="nf">process</span><span class="p">()</span> <span class="p">{</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parseRequest</span><span class="p">();</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">downloadFile</span><span class="p">();</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">createAttachment</span><span class="p">();</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">deleteExistingAttachments</span><span class="p">();</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">updateAttachmentMeta</span><span class="p">();</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parseRequest</span><span class="p">();</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">downloadFile</span><span class="p">();</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">createAttachment</span><span class="p">();</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">deleteExistingAttachments</span><span class="p">();</span>
+    <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">updateAttachmentMeta</span><span class="p">();</span>
 
         <span class="k">return</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">attachment</span><span class="p">;</span>
     <span class="p">}</span>
@@ -299,13 +302,13 @@
     <span class="nv">$url</span> <span class="o">=</span> <span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'url'</span><span class="p">])</span> <span class="o">?</span> <span class="nx">sanitize_url</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'url'</span><span class="p">])</span> <span class="o">:</span> <span class="s1">''</span><span class="p">;</span>
     <span class="k">if</span><span class="p">(</span><span class="k">empty</span><span class="p">(</span><span class="nv">$url</span><span class="p">))</span> <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Missing image URL'</span><span class="p">);</span>
 
-    <span class="k">if</span><span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="s1">'http://delivery.gettyimages.com/'</span><span class="p">)</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> 
+    <span class="k">if</span><span class="p">(</span><span class="nb">strpos</span><span class="p">(</span><span class="nv">$url</span><span class="p">,</span> <span class="s1">'http://delivery.gettyimages.com/'</span><span class="p">)</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span>
         <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Invalid URL'</span><span class="p">);</span>
 
     <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">is_array</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]))</span>
         <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Missing image meta'</span><span class="p">);</span>
 
-    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">is_array</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]))</span> 
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nb">is_array</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">])</span> <span class="o">||</span> <span class="o">!</span><span class="nb">isset</span><span class="p">(</span><span class="nv">$_POST</span><span class="p">[</span><span class="s1">'meta'</span><span class="p">][</span><span class="s1">'ImageId'</span><span class="p">]))</span>
         <span class="k">throw</span> <span class="k">new</span> <span class="nx">GettyImageException</span><span class="p">(</span><span class="s1">'Invalid image meta'</span><span class="p">);</span>
 
     <span class="nb">preg_match</span><span class="p">(</span><span class="s1">'/[^?]+\.(jpe?g|jpe|gif|png)\b/i'</span><span class="p">,</span> <span class="nv">$url</span><span class="p">,</span> <span class="nv">$matches</span><span class="p">);</span>
@@ -343,8 +346,8 @@
     <span class="nx">wp_update_post</span><span class="p">(</span><span class="k">array</span><span class="p">(</span>
         <span class="s1">'ID'</span> <span class="o">=&gt;</span> <span class="nv">$attachment</span><span class="o">-&gt;</span><span class="na">ID</span><span class="p">,</span>
         <span class="s1">'post_content'</span> <span class="o">=&gt;</span> <span class="s1">''</span><span class="p">,</span>
-           <span class="s1">'post_excerpt'</span> <span class="o">=&gt;</span> <span class="nv">$attachment</span><span class="o">-&gt;</span><span class="na">post_content</span><span class="p">,</span>
-           <span class="s1">'post_parent'</span> <span class="o">=&gt;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parentId</span>
+       <span class="s1">'post_excerpt'</span> <span class="o">=&gt;</span> <span class="nv">$attachment</span><span class="o">-&gt;</span><span class="na">post_content</span><span class="p">,</span>
+       <span class="s1">'post_parent'</span> <span class="o">=&gt;</span> <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">parentId</span>
     <span class="p">));</span>
 
     <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">attachment</span> <span class="o">=</span> <span class="nv">$attachment</span><span class="p">;</span>
@@ -370,14 +373,14 @@
 <pre class="highlight php"><code><span class="cp">&lt;?php</span>
 <span class="k">protected</span> <span class="k">function</span> <span class="nf">updateAttachmentMeta</span><span class="p">()</span> <span class="p">{</span>
     <span class="nx">update_post_meta</span><span class="p">(</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">attachment</span><span class="o">-&gt;</span><span class="na">ID</span><span class="p">,</span> 
-        <span class="nx">Getty_Images</span><span class="o">::</span><span class="na">getty_details_meta_key</span><span class="p">,</span> 
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">attachment</span><span class="o">-&gt;</span><span class="na">ID</span><span class="p">,</span>
+        <span class="nx">Getty_Images</span><span class="o">::</span><span class="na">getty_details_meta_key</span><span class="p">,</span>
         <span class="nb">array_map</span><span class="p">(</span><span class="s1">'sanitize_text_field'</span><span class="p">,</span> <span class="nb">array_filter</span><span class="p">(</span><span class="nv">$this</span><span class="o">-&gt;</span><span class="na">meta</span><span class="p">,</span> <span class="s1">'is_string'</span><span class="p">))</span>
     <span class="p">);</span>
 
     <span class="nx">update_post_meta</span><span class="p">(</span>
-        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">attachment</span><span class="o">-&gt;</span><span class="na">ID</span><span class="p">,</span> 
-        <span class="nx">Getty_Images</span><span class="o">::</span><span class="na">getty_imageid_meta_key</span><span class="p">,</span> 
+        <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">attachment</span><span class="o">-&gt;</span><span class="na">ID</span><span class="p">,</span>
+        <span class="nx">Getty_Images</span><span class="o">::</span><span class="na">getty_imageid_meta_key</span><span class="p">,</span>
         <span class="nv">$this</span><span class="o">-&gt;</span><span class="na">gettyId</span>
     <span class="p">);</span>
 <span class="p">}</span>
